@@ -6,27 +6,28 @@
 //
 
 import SwiftUI
-import SwiftData
 
 @main
 struct Railway_MonitorApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
-    }()
+    @State private var appState = AppState()
 
     var body: some Scene {
-        WindowGroup {
-            ContentView()
+        MenuBarExtra {
+            MenuBarView()
+                .environment(appState)
+                .task {
+                    await appState.initialize()
+                }
+        } label: {
+            if appState.menuBarTitle.isEmpty {
+                Image(systemName: "train.side.front.car")
+            } else {
+                HStack(spacing: 4) {
+                    Image(systemName: "train.side.front.car")
+                    Text(appState.menuBarTitle)
+                }
+            }
         }
-        .modelContainer(sharedModelContainer)
+        .menuBarExtraStyle(.window)
     }
 }

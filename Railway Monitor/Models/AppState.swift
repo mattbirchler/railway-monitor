@@ -8,6 +8,9 @@
 import Foundation
 import SwiftUI
 
+/// Central app state shared across all views via the SwiftUI environment.
+/// Manages authentication, workspace data, billing info, projects, deployments,
+/// and a configurable auto-refresh timer.
 @Observable
 final class AppState {
     // Auth
@@ -42,7 +45,7 @@ final class AppState {
     var isLoading = false
     var error: String?
 
-    // Settings
+    // Settings (persisted in UserDefaults)
     var showCostInMenuBar: Bool {
         get { UserDefaults.standard.bool(forKey: "showCostInMenuBar") }
         set { UserDefaults.standard.set(newValue, forKey: "showCostInMenuBar") }
@@ -73,6 +76,8 @@ final class AppState {
 
     private var hasInitialized = false
 
+    /// Called once on first appearance. Loads any saved token from Keychain,
+    /// restores the previously selected workspace, and starts auto-refresh.
     func initialize() async {
         guard !hasInitialized else { return }
         hasInitialized = true
@@ -89,6 +94,7 @@ final class AppState {
 
     // MARK: - Authentication
 
+    /// Validates the given API token, saves it to Keychain, and loads initial data.
     func authenticate(token: String) async throws {
         await api.setToken(token)
         let workspaces = try await api.validateTokenAndGetWorkspaces()
@@ -104,6 +110,7 @@ final class AppState {
         await refreshAll()
     }
 
+    /// Deletes the stored token and resets all state to defaults.
     func signOut() {
         KeychainService.delete()
         isAuthenticated = false
@@ -123,6 +130,8 @@ final class AppState {
 
     // MARK: - Data Refresh
 
+    /// Fetches workspace billing details, projects, and recent deployments.
+    /// If no workspace is selected, attempts to discover available workspaces first.
     func refreshAll() async {
         guard let workspaceId = selectedWorkspaceId else {
             // Try to discover workspaces first
@@ -196,6 +205,7 @@ final class AppState {
 
     // MARK: - Auto Refresh
 
+    /// Starts a background loop that calls ``refreshAll()`` at the user-configured interval.
     func startAutoRefresh() {
         stopAutoRefresh()
         let interval = UInt64(refreshIntervalMinutes) * 60 * 1_000_000_000

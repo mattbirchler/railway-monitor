@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+/// First-run view that prompts the user to enter their Railway API token.
 struct SetupView: View {
     @Environment(AppState.self) private var appState
     @State private var token = ""

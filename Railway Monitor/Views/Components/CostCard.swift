@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+/// Displays current-period usage cost, billing date range, and any available credit balance.
 struct CostCard: View {
     let currentUsage: Double
     let creditBalance: Double

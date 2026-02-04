@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+/// Root view displayed inside the menu bar popover.
+/// Routes between the setup flow, settings panel, and the main dashboard.
 struct MenuBarView: View {
     @Environment(AppState.self) private var appState
     @State private var showSettings = false

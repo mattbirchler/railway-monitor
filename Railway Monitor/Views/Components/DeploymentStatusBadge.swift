@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+/// Color-coded status indicator with label. Shows a pulsing ring for in-progress deployments.
 struct DeploymentStatusBadge: View {
     let status: DeploymentStatus
 

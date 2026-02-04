@@ -10,6 +10,7 @@ import os
 
 private let logger = Logger(subsystem: "com.birchtree.Railway-Monitor", category: "API")
 
+/// Errors surfaced to the UI from API operations.
 nonisolated enum RailwayAPIError: LocalizedError, Sendable {
     case noToken
     case invalidToken
@@ -33,6 +34,8 @@ nonisolated enum RailwayAPIError: LocalizedError, Sendable {
     }
 }
 
+/// Handles all communication with the Railway GraphQL API (v2).
+/// Declared as an `actor` to ensure the stored token is accessed safely across tasks.
 actor RailwayAPI {
     private let endpoint = URL(string: "https://backboard.railway.com/graphql/v2")!
     private var token: String?
@@ -204,6 +207,7 @@ actor RailwayAPI {
 
     // MARK: - GraphQL Execution
 
+    /// Sends a GraphQL query to the Railway API and decodes the response into the given type.
     private func execute<T: Decodable & Sendable>(query: String, variables: [String: Any]? = nil) async throws -> GraphQLResponse<T> {
         guard let token = token, !token.isEmpty else {
             throw RailwayAPIError.noToken

@@ -8,6 +8,8 @@
 import SwiftUI
 import ServiceManagement
 
+/// Preferences panel for configuring the menu bar display, refresh interval,
+/// launch-at-login, workspace selection, and signing out.
 struct SettingsView: View {
     @Environment(AppState.self) private var appState
     var onDismiss: () -> Void

@@ -8,10 +8,13 @@
 import Foundation
 import Security
 
+/// Thin wrapper around the macOS Keychain for storing and retrieving the Railway API token.
+/// The token is stored as a generic password, accessible only while the device is unlocked.
 nonisolated enum KeychainService {
     private static let service = "com.birchtree.Railway-Monitor"
     private static let account = "railway-api-token"
 
+    /// Saves the token to Keychain, replacing any existing entry.
     nonisolated static func save(token: String) -> Bool {
         guard let data = token.data(using: .utf8) else { return false }
 
@@ -30,6 +33,7 @@ nonisolated enum KeychainService {
         return status == errSecSuccess
     }
 
+    /// Returns the stored token, or `nil` if none exists.
     nonisolated static func retrieve() -> String? {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
@@ -46,6 +50,7 @@ nonisolated enum KeychainService {
         return String(data: data, encoding: .utf8)
     }
 
+    /// Removes the stored token. Returns `true` if deleted or if no token was stored.
     @discardableResult
     nonisolated static func delete() -> Bool {
         let query: [String: Any] = [

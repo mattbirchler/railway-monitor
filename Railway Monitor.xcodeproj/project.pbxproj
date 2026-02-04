@@ -6,27 +6,8 @@
 	objectVersion = 77;
 	objects = {
 
-/* Begin PBXContainerItemProxy section */
-		C997645A2F32AE77009C09A7 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = C99764422F32AE75009C09A7 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = C99764492F32AE75009C09A7;
-			remoteInfo = "Railway Monitor";
-		};
-		C99764642F32AE77009C09A7 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = C99764422F32AE75009C09A7 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = C99764492F32AE75009C09A7;
-			remoteInfo = "Railway Monitor";
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXFileReference section */
 		C997644A2F32AE75009C09A7 /* Railway Monitor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Railway Monitor.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		C99764592F32AE77009C09A7 /* Railway MonitorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Railway MonitorTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		C99764632F32AE77009C09A7 /* Railway MonitorUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Railway MonitorUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -35,34 +16,10 @@
 			path = "Railway Monitor";
 			sourceTree = "<group>";
 		};
-		C997645C2F32AE77009C09A7 /* Railway MonitorTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "Railway MonitorTests";
-			sourceTree = "<group>";
-		};
-		C99764662F32AE77009C09A7 /* Railway MonitorUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "Railway MonitorUITests";
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		C99764472F32AE75009C09A7 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		C99764562F32AE77009C09A7 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		C99764602F32AE77009C09A7 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -76,8 +33,6 @@
 			isa = PBXGroup;
 			children = (
 				C997644C2F32AE75009C09A7 /* Railway Monitor */,
-				C997645C2F32AE77009C09A7 /* Railway MonitorTests */,
-				C99764662F32AE77009C09A7 /* Railway MonitorUITests */,
 				C997644B2F32AE75009C09A7 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -86,8 +41,6 @@
 			isa = PBXGroup;
 			children = (
 				C997644A2F32AE75009C09A7 /* Railway Monitor.app */,
-				C99764592F32AE77009C09A7 /* Railway MonitorTests.xctest */,
-				C99764632F32AE77009C09A7 /* Railway MonitorUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -117,52 +70,6 @@
 			productReference = C997644A2F32AE75009C09A7 /* Railway Monitor.app */;
 			productType = "com.apple.product-type.application";
 		};
-		C99764582F32AE77009C09A7 /* Railway MonitorTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = C99764702F32AE77009C09A7 /* Build configuration list for PBXNativeTarget "Railway MonitorTests" */;
-			buildPhases = (
-				C99764552F32AE77009C09A7 /* Sources */,
-				C99764562F32AE77009C09A7 /* Frameworks */,
-				C99764572F32AE77009C09A7 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				C997645B2F32AE77009C09A7 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				C997645C2F32AE77009C09A7 /* Railway MonitorTests */,
-			);
-			name = "Railway MonitorTests";
-			packageProductDependencies = (
-			);
-			productName = "Railway MonitorTests";
-			productReference = C99764592F32AE77009C09A7 /* Railway MonitorTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
-		C99764622F32AE77009C09A7 /* Railway MonitorUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = C99764732F32AE77009C09A7 /* Build configuration list for PBXNativeTarget "Railway MonitorUITests" */;
-			buildPhases = (
-				C997645F2F32AE77009C09A7 /* Sources */,
-				C99764602F32AE77009C09A7 /* Frameworks */,
-				C99764612F32AE77009C09A7 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				C99764652F32AE77009C09A7 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				C99764662F32AE77009C09A7 /* Railway MonitorUITests */,
-			);
-			name = "Railway MonitorUITests";
-			packageProductDependencies = (
-			);
-			productName = "Railway MonitorUITests";
-			productReference = C99764632F32AE77009C09A7 /* Railway MonitorUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -175,14 +82,6 @@
 				TargetAttributes = {
 					C99764492F32AE75009C09A7 = {
 						CreatedOnToolsVersion = 26.3;
-					};
-					C99764582F32AE77009C09A7 = {
-						CreatedOnToolsVersion = 26.3;
-						TestTargetID = C99764492F32AE75009C09A7;
-					};
-					C99764622F32AE77009C09A7 = {
-						CreatedOnToolsVersion = 26.3;
-						TestTargetID = C99764492F32AE75009C09A7;
 					};
 				};
 			};
@@ -201,28 +100,12 @@
 			projectRoot = "";
 			targets = (
 				C99764492F32AE75009C09A7 /* Railway Monitor */,
-				C99764582F32AE77009C09A7 /* Railway MonitorTests */,
-				C99764622F32AE77009C09A7 /* Railway MonitorUITests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		C99764482F32AE75009C09A7 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		C99764572F32AE77009C09A7 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		C99764612F32AE77009C09A7 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -239,34 +122,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		C99764552F32AE77009C09A7 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		C997645F2F32AE77009C09A7 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		C997645B2F32AE77009C09A7 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = C99764492F32AE75009C09A7 /* Railway Monitor */;
-			targetProxy = C997645A2F32AE77009C09A7 /* PBXContainerItemProxy */;
-		};
-		C99764652F32AE77009C09A7 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = C99764492F32AE75009C09A7 /* Railway Monitor */;
-			targetProxy = C99764642F32AE77009C09A7 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		C997646B2F32AE77009C09A7 /* Debug */ = {
@@ -459,86 +315,6 @@
 			};
 			name = Release;
 		};
-		C99764712F32AE77009C09A7 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = ZPU7B69KH3;
-				GENERATE_INFOPLIST_FILE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 26.2;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "birchtree.Railway-MonitorTests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Railway Monitor.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Railway Monitor";
-			};
-			name = Debug;
-		};
-		C99764722F32AE77009C09A7 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = ZPU7B69KH3;
-				GENERATE_INFOPLIST_FILE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 26.2;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "birchtree.Railway-MonitorTests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Railway Monitor.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Railway Monitor";
-			};
-			name = Release;
-		};
-		C99764742F32AE77009C09A7 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = ZPU7B69KH3;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "birchtree.Railway-MonitorUITests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TEST_TARGET_NAME = "Railway Monitor";
-			};
-			name = Debug;
-		};
-		C99764752F32AE77009C09A7 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = ZPU7B69KH3;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "birchtree.Railway-MonitorUITests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TEST_TARGET_NAME = "Railway Monitor";
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -556,24 +332,6 @@
 			buildConfigurations = (
 				C997646E2F32AE77009C09A7 /* Debug */,
 				C997646F2F32AE77009C09A7 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		C99764702F32AE77009C09A7 /* Build configuration list for PBXNativeTarget "Railway MonitorTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				C99764712F32AE77009C09A7 /* Debug */,
-				C99764722F32AE77009C09A7 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		C99764732F32AE77009C09A7 /* Build configuration list for PBXNativeTarget "Railway MonitorUITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				C99764742F32AE77009C09A7 /* Debug */,
-				C99764752F32AE77009C09A7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

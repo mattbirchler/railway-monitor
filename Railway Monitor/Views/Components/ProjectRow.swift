@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+/// Expandable row showing a project name, service count, and per-service deployment status.
 struct ProjectRow: View {
     let project: Project
     let deployments: [Deployment]

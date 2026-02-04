@@ -7,8 +7,12 @@
 
 import Foundation
 
+// Decodable models that mirror the Railway GraphQL API schema.
+// Relay-style connection types (edges/node) are used where the API returns paginated lists.
+
 // MARK: - GraphQL Response Wrappers
 
+/// Generic wrapper for all GraphQL responses. Every response can contain `data`, `errors`, or both.
 nonisolated struct GraphQLResponse<T: Decodable & Sendable>: Decodable, Sendable {
     let data: T?
     let errors: [GraphQLError]?
@@ -124,6 +128,7 @@ nonisolated struct Deployment: Identifiable, Decodable, Sendable {
     let createdAt: String
     let service: DeploymentService?
 
+    /// Parses the ISO 8601 `createdAt` string, trying fractional seconds first.
     var createdDate: Date? {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
@@ -144,6 +149,7 @@ nonisolated struct DeploymentService: Decodable, Sendable {
     let name: String
 }
 
+/// Maps to Railway's deployment status values. Raw values match the API strings exactly.
 nonisolated enum DeploymentStatus: String, Decodable, CaseIterable, Sendable {
     case SUCCESS
     case BUILDING

@@ -216,9 +216,7 @@ actor RailwayAPI {
 
         let jsonData = try JSONSerialization.data(withJSONObject: body)
 
-        if let requestBody = String(data: jsonData, encoding: .utf8) {
-            logger.debug("➡️ REQUEST:\n\(requestBody)")
-        }
+        logger.debug("➡️ Sending GraphQL request")
 
         var request = URLRequest(url: endpoint)
         request.httpMethod = "POST"
@@ -235,9 +233,7 @@ actor RailwayAPI {
         }
 
         let statusCode = (response as? HTTPURLResponse)?.statusCode ?? -1
-        if let responseBody = String(data: data, encoding: .utf8) {
-            logger.debug("⬅️ RESPONSE (\(statusCode)):\n\(responseBody)")
-        }
+        logger.debug("⬅️ Response received (HTTP \(statusCode))")
 
         if statusCode == 401 {
             throw RailwayAPIError.invalidToken

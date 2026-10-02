@@ -8,7 +8,7 @@
 import Foundation
 import os
 
-private let logger = Logger(subsystem: "com.birchtree.Railway-Monitor", category: "API")
+nonisolated private let logger = Logger(subsystem: "com.birchtree.Railway-Monitor", category: "API")
 
 /// Errors surfaced to the UI from API operations.
 nonisolated enum RailwayAPIError: LocalizedError, Sendable {
@@ -45,7 +45,7 @@ actor RailwayAPI {
     }
 
     func loadTokenFromKeychain() {
-        self.token = KeychainService.retrieve()
+        self.token = KeychainService.retrieve(for: .railway)
     }
 
     var hasToken: Bool {

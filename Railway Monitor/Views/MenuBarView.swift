@@ -14,7 +14,7 @@ struct MenuBarView: View {
     @State private var showSettings = false
 
     var body: some View {
-        if !appState.isAuthenticated {
+        if !appState.hasAnyService {
             SetupView()
         } else if showSettings {
             SettingsView(onDismiss: { showSettings = false })
@@ -25,7 +25,6 @@ struct MenuBarView: View {
 
     private var mainContent: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // Header
             header
                 .padding(.horizontal, 16)
                 .padding(.top, 12)
@@ -34,78 +33,24 @@ struct MenuBarView: View {
             Divider()
 
             ScrollView {
-                VStack(alignment: .leading, spacing: 12) {
-                    // Cost card
-                    CostCard(
-                        currentUsage: appState.currentUsage,
-                        creditBalance: appState.creditBalance,
-                        billingPeriodStart: appState.billingPeriodStart,
-                        billingPeriodEnd: appState.billingPeriodEnd
-                    )
-
-                    // Projects
-                    if !appState.projects.isEmpty {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Projects")
-                                .font(.subheadline.weight(.medium))
-                                .foregroundStyle(.secondary)
-
-                            ForEach(appState.projects) { project in
-                                ProjectRow(
-                                    project: project,
-                                    deployments: appState.recentDeployments.filter { deployment in
-                                        project.services.edges.contains { edge in
-                                            edge.node.name == deployment.service?.name
-                                        }
-                                    }
-                                )
-                            }
-                        }
+                VStack(alignment: .leading, spacing: 16) {
+                    if appState.isRailwayConnected {
+                        railwaySection
                     }
-
-                    // Recent deployments
-                    if !appState.recentDeployments.isEmpty {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Recent Deployments")
-                                .font(.subheadline.weight(.medium))
-                                .foregroundStyle(.secondary)
-
-                            ForEach(appState.recentDeployments.prefix(5)) { deployment in
-                                HStack {
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text(deployment.service?.name ?? "Unknown")
-                                            .font(.callout)
-                                        Text(deployment.timeAgo)
-                                            .font(.caption)
-                                            .foregroundStyle(.secondary)
-                                    }
-                                    Spacer()
-                                    DeploymentStatusBadge(status: deployment.status)
-                                }
-                                .padding(.vertical, 2)
-                            }
-                        }
+                    if appState.isDigitalOceanConnected {
+                        digitalOceanSection
                     }
-
-                    // Error
-                    if let error = appState.error {
-                        Text(error)
-                            .font(.caption)
-                            .foregroundStyle(.red)
-                            .padding(8)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(.red.opacity(0.1))
-                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                    if appState.isOpenRouterConnected {
+                        openRouterSection
                     }
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
             }
-            .frame(maxHeight: 400)
+            .frame(maxHeight: 460)
 
             Divider()
 
-            // Footer
             footer
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
@@ -113,18 +58,16 @@ struct MenuBarView: View {
         .frame(width: 320)
     }
 
+    // MARK: - Header
+
     private var header: some View {
-        HStack {
+        HStack(alignment: .firstTextBaseline) {
             VStack(alignment: .leading, spacing: 2) {
-                Text(appState.workspaceName)
-                    .font(.headline)
-                Text(appState.workspacePlan.uppercased())
-                    .font(.caption2.weight(.semibold))
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(.blue.opacity(0.15))
-                    .foregroundStyle(.blue)
-                    .clipShape(Capsule())
+                Text("Current Spend")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Text(String(format: "$%.2f", appState.totalCurrentSpend))
+                    .font(.system(size: 22, weight: .semibold, design: .rounded))
             }
 
             Spacer()
@@ -132,9 +75,147 @@ struct MenuBarView: View {
             if appState.isLoading {
                 ProgressView()
                     .controlSize(.small)
+            } else {
+                Text(serviceCountLabel)
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
             }
         }
     }
+
+    private var serviceCountLabel: String {
+        let count = appState.connectedServices.count
+        return count == 1 ? "1 service" : "\(count) services"
+    }
+
+    // MARK: - Railway
+
+    private var railwaySection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            ServiceSectionHeader(service: .railway, subtitle: railwaySubtitle)
+
+            CostCard(
+                currentUsage: appState.currentUsage,
+                creditBalance: appState.creditBalance,
+                billingPeriodStart: appState.billingPeriodStart,
+                billingPeriodEnd: appState.billingPeriodEnd
+            )
+
+            if !appState.projects.isEmpty {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Projects")
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(.secondary)
+
+                    ForEach(appState.projects) { project in
+                        ProjectRow(
+                            project: project,
+                            deployments: appState.recentDeployments.filter { deployment in
+                                project.services.edges.contains { edge in
+                                    edge.node.name == deployment.service?.name
+                                }
+                            }
+                        )
+                    }
+                }
+            }
+
+            if !appState.recentDeployments.isEmpty {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Recent Deployments")
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(.secondary)
+
+                    ForEach(appState.recentDeployments.prefix(5)) { deployment in
+                        HStack {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(deployment.service?.name ?? "Unknown")
+                                    .font(.callout)
+                                Text(deployment.timeAgo)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                            DeploymentStatusBadge(status: deployment.status)
+                        }
+                        .padding(.vertical, 2)
+                    }
+                }
+            }
+
+            if let error = appState.railwayError {
+                ServiceErrorBanner(message: error)
+            }
+        }
+    }
+
+    private var railwaySubtitle: String {
+        var parts: [String] = []
+        if !appState.workspaceName.isEmpty { parts.append(appState.workspaceName) }
+        if !appState.workspacePlan.isEmpty { parts.append(appState.workspacePlan.capitalized) }
+        return parts.joined(separator: " · ")
+    }
+
+    // MARK: - DigitalOcean
+
+    private var digitalOceanSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            ServiceSectionHeader(service: .digitalOcean)
+
+            if let balance = appState.digitalOceanBalance {
+                DigitalOceanCard(balance: balance, invoices: appState.digitalOceanInvoices)
+            } else if appState.digitalOceanError == nil {
+                loadingPlaceholder
+            }
+
+            if let error = appState.digitalOceanError {
+                ServiceErrorBanner(message: error)
+            }
+        }
+    }
+
+    // MARK: - OpenRouter
+
+    private var openRouterSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            ServiceSectionHeader(service: .openRouter, subtitle: openRouterSubtitle)
+
+            ForEach(appState.openRouterWorkspaces) { workspace in
+                if let account = workspace.account {
+                    OpenRouterCard(name: workspace.name, account: account)
+                } else if workspace.error == nil {
+                    loadingPlaceholder
+                }
+
+                if let error = workspace.error {
+                    ServiceErrorBanner(message: "\(workspace.name): \(error)")
+                }
+            }
+        }
+    }
+
+    private var openRouterSubtitle: String? {
+        guard appState.openRouterWorkspaces.count > 1, let total = appState.openRouterMonthlySpend else {
+            return nil
+        }
+        return String(format: "$%.2f this month", total)
+    }
+
+    private var loadingPlaceholder: some View {
+        HStack {
+            ProgressView()
+                .controlSize(.small)
+            Text("Loading")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(12)
+        .background(.quaternary.opacity(0.5))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    // MARK: - Footer
 
     private var footer: some View {
         VStack(spacing: 6) {
@@ -159,10 +240,6 @@ struct MenuBarView: View {
                     Image(systemName: "gearshape")
                 }
                 .buttonStyle(.plain)
-
-                Link(destination: URL(string: "https://railway.com/dashboard")!) {
-                    Image(systemName: "arrow.up.right.square")
-                }
 
                 Spacer()
 

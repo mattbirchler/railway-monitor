@@ -8,18 +8,39 @@
 import Foundation
 import Security
 
-/// Thin wrapper around the macOS Keychain for storing and retrieving the Railway API token.
-/// The token is stored as a generic password, accessible only while the device is unlocked.
+/// Thin wrapper around the macOS Keychain. Stores one credential per cloud service,
+/// plus arbitrary data blobs for services that hold more than one key.
+/// Items are generic passwords, accessible only while the device is unlocked.
 nonisolated enum KeychainService {
     private static let service = "com.birchtree.Railway-Monitor"
-    private static let account = "railway-api-token"
 
-    /// Saves the token to Keychain, replacing any existing entry.
-    nonisolated static func save(token: String) -> Bool {
+    // MARK: - Per-service tokens
+
+    /// Saves the token for the given service, replacing any existing entry.
+    @discardableResult
+    nonisolated static func save(token: String, for cloudService: CloudService) -> Bool {
         guard let data = token.data(using: .utf8) else { return false }
+        return saveData(data, account: cloudService.keychainAccount)
+    }
 
+    /// Returns the stored token for the given service, or `nil` if none exists.
+    nonisolated static func retrieve(for cloudService: CloudService) -> String? {
+        guard let data = retrieveData(account: cloudService.keychainAccount) else { return nil }
+        return String(data: data, encoding: .utf8)
+    }
+
+    /// Removes the stored token for the given service. Returns `true` if deleted or if none was stored.
+    @discardableResult
+    nonisolated static func delete(for cloudService: CloudService) -> Bool {
+        delete(account: cloudService.keychainAccount)
+    }
+
+    // MARK: - Raw data
+
+    @discardableResult
+    nonisolated static func saveData(_ data: Data, account: String) -> Bool {
         // Delete existing item first
-        delete()
+        delete(account: account)
 
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
@@ -33,8 +54,7 @@ nonisolated enum KeychainService {
         return status == errSecSuccess
     }
 
-    /// Returns the stored token, or `nil` if none exists.
-    nonisolated static func retrieve() -> String? {
+    nonisolated static func retrieveData(account: String) -> Data? {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
@@ -47,12 +67,11 @@ nonisolated enum KeychainService {
         let status = SecItemCopyMatching(query as CFDictionary, &result)
 
         guard status == errSecSuccess, let data = result as? Data else { return nil }
-        return String(data: data, encoding: .utf8)
+        return data
     }
 
-    /// Removes the stored token. Returns `true` if deleted or if no token was stored.
     @discardableResult
-    nonisolated static func delete() -> Bool {
+    nonisolated static func delete(account: String) -> Bool {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,

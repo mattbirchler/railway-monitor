@@ -8,19 +8,32 @@
 import SwiftUI
 import ServiceManagement
 
-/// Preferences panel for configuring the menu bar display, refresh interval,
-/// launch-at-login, workspace selection, and signing out.
+/// Preferences panel for managing connected services, the menu bar display,
+/// refresh interval, launch-at-login, and Railway workspace selection.
 struct SettingsView: View {
     @Environment(AppState.self) private var appState
     var onDismiss: () -> Void
     @State private var launchAtLogin = false
+    @State private var connectingService: CloudService?
 
     private let refreshOptions = [1, 2, 5, 10, 15, 30]
 
     var body: some View {
+        if let service = connectingService {
+            ConnectServiceView(
+                service: service,
+                onConnected: { connectingService = nil },
+                onCancel: { connectingService = nil }
+            )
+        } else {
+            settings
+        }
+    }
+
+    private var settings: some View {
         @Bindable var state = appState
 
-        VStack(alignment: .leading, spacing: 16) {
+        return VStack(alignment: .leading, spacing: 16) {
             HStack {
                 Text("Settings")
                     .font(.headline)
@@ -36,27 +49,45 @@ struct SettingsView: View {
 
             Divider()
 
-            // API Token
-            VStack(alignment: .leading, spacing: 4) {
-                Text("API Token")
+            // Services
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Services")
                     .font(.subheadline.weight(.medium))
-                HStack {
-                    Text("••••••••••••••••")
-                        .font(.caption.monospaced())
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    Button("Sign Out") {
-                        appState.signOut()
+
+                ForEach(CloudService.allCases) { service in
+                    serviceRow(service)
+                    if service == .openRouter {
+                        ForEach(appState.openRouterWorkspaces) { workspace in
+                            openRouterWorkspaceRow(workspace)
+                        }
                     }
-                    .font(.caption)
-                    .foregroundStyle(.red)
+                }
+            }
+
+            // Railway workspace selector (if multiple)
+            if appState.isRailwayConnected && appState.workspaces.count > 1 {
+                HStack {
+                    Text("Railway workspace")
+                        .font(.subheadline)
+                    Spacer()
+                    Picker("", selection: $state.selectedWorkspaceId) {
+                        ForEach(appState.workspaces) { workspace in
+                            Text(workspace.name).tag(Optional(workspace.id))
+                        }
+                    }
+                    .frame(width: 140)
+                    .onChange(of: appState.selectedWorkspaceId) {
+                        Task {
+                            await appState.refreshRailway()
+                        }
+                    }
                 }
             }
 
             Divider()
 
             // Show cost in menu bar
-            Toggle("Show cost in menu bar", isOn: $state.showCostInMenuBar)
+            Toggle("Show total cost in menu bar", isOn: $state.showCostInMenuBar)
                 .font(.subheadline)
 
             // Refresh interval
@@ -84,28 +115,6 @@ struct SettingsView: View {
 
             Divider()
 
-            // Workspace selector (if multiple)
-            if appState.workspaces.count > 1 {
-                HStack {
-                    Text("Workspace")
-                        .font(.subheadline)
-                    Spacer()
-                    Picker("", selection: $state.selectedWorkspaceId) {
-                        ForEach(appState.workspaces) { workspace in
-                            Text(workspace.name).tag(Optional(workspace.id))
-                        }
-                    }
-                    .frame(width: 150)
-                    .onChange(of: appState.selectedWorkspaceId) {
-                        Task {
-                            await appState.refreshAll()
-                        }
-                    }
-                }
-
-                Divider()
-            }
-
             Button("Quit Railway Monitor") {
                 NSApplication.shared.terminate(nil)
             }
@@ -113,10 +122,60 @@ struct SettingsView: View {
             .frame(maxWidth: .infinity)
         }
         .padding(16)
-        .frame(width: 280)
+        .frame(width: 300)
         .onAppear {
             launchAtLogin = SMAppService.mainApp.status == .enabled
         }
+    }
+
+    private func serviceRow(_ service: CloudService) -> some View {
+        HStack {
+            Image(systemName: service.symbolName)
+                .frame(width: 18)
+                .foregroundStyle(.secondary)
+            Text(service.displayName)
+                .font(.subheadline)
+            Spacer()
+            if service == .openRouter && appState.isOpenRouterConnected {
+                Button("Add Workspace") {
+                    connectingService = service
+                }
+                .font(.caption)
+            } else if appState.isConnected(service) {
+                Text("Connected")
+                    .font(.caption)
+                    .foregroundStyle(.green)
+                Button("Sign Out") {
+                    appState.disconnect(service)
+                }
+                .font(.caption)
+                .foregroundStyle(.red)
+            } else {
+                Button("Connect") {
+                    connectingService = service
+                }
+                .font(.caption)
+            }
+        }
+    }
+
+    private func openRouterWorkspaceRow(_ workspace: AppState.OpenRouterWorkspace) -> some View {
+        HStack {
+            Image(systemName: "key")
+                .font(.caption)
+                .frame(width: 18)
+                .foregroundStyle(.tertiary)
+            Text(workspace.name)
+                .font(.caption)
+                .lineLimit(1)
+            Spacer()
+            Button("Remove") {
+                appState.removeOpenRouterWorkspace(id: workspace.id)
+            }
+            .font(.caption)
+            .foregroundStyle(.red)
+        }
+        .padding(.leading, 18)
     }
 
     private func setLaunchAtLogin(_ enabled: Bool) {
@@ -127,7 +186,7 @@ struct SettingsView: View {
                 try SMAppService.mainApp.unregister()
             }
         } catch {
-            // Silently fail — user can retry
+            // Silently fail. The user can retry.
         }
     }
 }

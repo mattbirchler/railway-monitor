@@ -8,7 +8,7 @@ A macOS menu bar app for keeping an eye on your cloud spend. It started as a [Ra
 | --- | --- | --- |
 | **Railway** | Current usage, credit balance, billing period, projects, services, and recent deployments | API token from [railway.com/account/tokens](https://railway.com/account/tokens) |
 | **DigitalOcean** | Month-to-date usage, outstanding balance or credit, and the last three invoices | Personal access token from [cloud.digitalocean.com/account/api/tokens](https://cloud.digitalocean.com/account/api/tokens). A read-only token with the `billing:read` scope is enough. |
-| **OpenRouter** | Spend for the key today, this week, this month, and all time, plus any key spending limit | API key from [openrouter.ai/settings/keys](https://openrouter.ai/settings/keys). A management key additionally shows the account's total credit balance. |
+| **OpenRouter** | Spend today, this week, this month, and all time for each workspace key, plus any key spending limit. Keys are scoped to one workspace, so you can add as many as you need. | API key from [openrouter.ai/settings/keys](https://openrouter.ai/settings/keys). A management key additionally shows that workspace's credit balance. |
 
 Inworld was considered but has no public billing or usage API, so it is not supported. Usage for Inworld is only available on its web portal.
 

@@ -43,9 +43,27 @@ final class AppState {
 
     // MARK: - OpenRouter
 
-    var isOpenRouterConnected = false
-    var openRouterAccount: OpenRouterAccount?
-    var openRouterError: String?
+    /// Live state for one OpenRouter workspace key.
+    struct OpenRouterWorkspace: Identifiable {
+        let credential: OpenRouterCredential
+        var account: OpenRouterAccount?
+        var error: String?
+
+        var id: UUID { credential.id }
+        var name: String { credential.name }
+    }
+
+    var openRouterWorkspaces: [OpenRouterWorkspace] = []
+
+    var isOpenRouterConnected: Bool {
+        !openRouterWorkspaces.isEmpty
+    }
+
+    /// Combined monthly spend across all OpenRouter workspaces, or `nil` if none has loaded.
+    var openRouterMonthlySpend: Double? {
+        let loaded = openRouterWorkspaces.compactMap { $0.account?.key.usageMonthly }
+        return loaded.isEmpty ? nil : loaded.reduce(0, +)
+    }
 
     // MARK: - UI State
 
@@ -101,7 +119,7 @@ final class AppState {
         case .digitalOcean:
             return digitalOceanBalance?.monthToDateUsageValue
         case .openRouter:
-            return openRouterAccount?.key.usageMonthly
+            return openRouterMonthlySpend
         }
     }
 
@@ -114,7 +132,7 @@ final class AppState {
         switch service {
         case .railway: return railwayError
         case .digitalOcean: return digitalOceanError
-        case .openRouter: return openRouterError
+        case .openRouter: return openRouterWorkspaces.compactMap(\.error).first
         }
     }
 
@@ -139,11 +157,12 @@ final class AppState {
 
         await railwayAPI.loadTokenFromKeychain()
         await digitalOceanAPI.loadTokenFromKeychain()
-        await openRouterAPI.loadTokenFromKeychain()
 
         isRailwayConnected = await railwayAPI.hasToken
         isDigitalOceanConnected = await digitalOceanAPI.hasToken
-        isOpenRouterConnected = await openRouterAPI.hasToken
+        openRouterWorkspaces = OpenRouterCredentialStore.load().map {
+            OpenRouterWorkspace(credential: $0)
+        }
 
         if isRailwayConnected {
             selectedWorkspaceId = UserDefaults.standard.string(forKey: "selectedWorkspaceId")
@@ -182,13 +201,38 @@ final class AppState {
             await refreshDigitalOcean()
 
         case .openRouter:
-            await openRouterAPI.setToken(trimmed)
-            let account = try await openRouterAPI.fetchAccount()
-            KeychainService.save(token: trimmed, for: .openRouter)
-            openRouterAccount = account
-            isOpenRouterConnected = true
+            try await addOpenRouterWorkspace(name: "", key: trimmed)
         }
         lastRefreshed = Date()
+    }
+
+    /// Validates an OpenRouter key, then stores it under the given workspace name.
+    /// An empty name falls back to the key's label, then to a numbered default.
+    func addOpenRouterWorkspace(name: String, key: String) async throws {
+        let trimmedKey = key.trimmingCharacters(in: .whitespacesAndNewlines)
+        let account = try await openRouterAPI.fetchAccount(key: trimmedKey)
+
+        var resolvedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        if resolvedName.isEmpty, let label = account.key.label, !label.isEmpty {
+            resolvedName = label
+        }
+        if resolvedName.isEmpty {
+            resolvedName = "Workspace \(openRouterWorkspaces.count + 1)"
+        }
+
+        let credential = OpenRouterCredential(id: UUID(), name: resolvedName, key: trimmedKey)
+        openRouterWorkspaces.append(OpenRouterWorkspace(credential: credential, account: account))
+        OpenRouterCredentialStore.save(openRouterWorkspaces.map(\.credential))
+        lastRefreshed = Date()
+    }
+
+    /// Removes one OpenRouter workspace key.
+    func removeOpenRouterWorkspace(id: UUID) {
+        openRouterWorkspaces.removeAll { $0.id == id }
+        OpenRouterCredentialStore.save(openRouterWorkspaces.map(\.credential))
+        if !hasAnyService {
+            lastRefreshed = nil
+        }
     }
 
     /// Deletes the stored token for the service and clears its data.
@@ -216,10 +260,8 @@ final class AppState {
             digitalOceanError = nil
             Task { await digitalOceanAPI.setToken("") }
         case .openRouter:
-            isOpenRouterConnected = false
-            openRouterAccount = nil
-            openRouterError = nil
-            Task { await openRouterAPI.setToken("") }
+            openRouterWorkspaces = []
+            OpenRouterCredentialStore.save([])
         }
         if !hasAnyService {
             lastRefreshed = nil
@@ -323,13 +365,37 @@ final class AppState {
         }
     }
 
-    /// Fetches OpenRouter key usage and, when the key allows it, the credit balance.
+    /// Refreshes every OpenRouter workspace key concurrently.
     func refreshOpenRouter() async {
-        openRouterError = nil
-        do {
-            openRouterAccount = try await openRouterAPI.fetchAccount()
-        } catch {
-            openRouterError = error.localizedDescription
+        let credentials = openRouterWorkspaces.map(\.credential)
+        let api = openRouterAPI
+
+        let results = await withTaskGroup(of: (UUID, Result<OpenRouterAccount, Error>).self) { group in
+            for credential in credentials {
+                group.addTask {
+                    do {
+                        return (credential.id, .success(try await api.fetchAccount(key: credential.key)))
+                    } catch {
+                        return (credential.id, .failure(error))
+                    }
+                }
+            }
+            var collected: [UUID: Result<OpenRouterAccount, Error>] = [:]
+            for await (id, result) in group {
+                collected[id] = result
+            }
+            return collected
+        }
+
+        for index in openRouterWorkspaces.indices {
+            guard let result = results[openRouterWorkspaces[index].id] else { continue }
+            switch result {
+            case .success(let account):
+                openRouterWorkspaces[index].account = account
+                openRouterWorkspaces[index].error = nil
+            case .failure(let error):
+                openRouterWorkspaces[index].error = error.localizedDescription
+            }
         }
     }
 

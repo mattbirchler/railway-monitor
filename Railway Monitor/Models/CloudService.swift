@@ -57,7 +57,7 @@ nonisolated enum CloudService: String, CaseIterable, Identifiable, Sendable {
         case .digitalOcean:
             return "Enter a DigitalOcean personal access token. Read-only scope with billing access is enough."
         case .openRouter:
-            return "Enter an OpenRouter API key. A regular key works. A management key also unlocks the total credit balance."
+            return "Enter an OpenRouter API key. Keys are scoped to one workspace, so you can add one per workspace. A management key also shows that workspace's credit balance."
         }
     }
 

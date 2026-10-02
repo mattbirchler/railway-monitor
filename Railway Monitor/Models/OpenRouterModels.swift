@@ -56,3 +56,44 @@ nonisolated struct OpenRouterAccount: Sendable {
     /// `nil` when the key is not a management key.
     let credits: OpenRouterCredits?
 }
+
+// MARK: - Stored credentials
+
+/// One OpenRouter API key. Keys are scoped to a workspace, so the user names each one.
+nonisolated struct OpenRouterCredential: Identifiable, Codable, Sendable, Equatable {
+    var id: UUID
+    var name: String
+    var key: String
+}
+
+/// Persists the list of OpenRouter credentials as a single JSON blob in the Keychain.
+nonisolated enum OpenRouterCredentialStore {
+    private static let account = "openrouter-workspaces"
+
+    /// Loads saved credentials. Migrates a single legacy key into the list on first run.
+    static func load() -> [OpenRouterCredential] {
+        if let data = KeychainService.retrieveData(account: account),
+           let list = try? JSONDecoder().decode([OpenRouterCredential].self, from: data) {
+            return list
+        }
+
+        // Migrate the single-key entry from earlier versions.
+        if let legacy = KeychainService.retrieve(for: .openRouter), !legacy.isEmpty {
+            let migrated = [OpenRouterCredential(id: UUID(), name: "Default", key: legacy)]
+            save(migrated)
+            KeychainService.delete(for: .openRouter)
+            return migrated
+        }
+
+        return []
+    }
+
+    static func save(_ credentials: [OpenRouterCredential]) {
+        if credentials.isEmpty {
+            KeychainService.delete(account: account)
+            return
+        }
+        guard let data = try? JSONEncoder().encode(credentials) else { return }
+        KeychainService.saveData(data, account: account)
+    }
+}

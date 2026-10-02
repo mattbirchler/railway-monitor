@@ -178,18 +178,27 @@ struct MenuBarView: View {
 
     private var openRouterSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            ServiceSectionHeader(service: .openRouter, subtitle: appState.openRouterAccount?.key.label)
+            ServiceSectionHeader(service: .openRouter, subtitle: openRouterSubtitle)
 
-            if let account = appState.openRouterAccount {
-                OpenRouterCard(account: account)
-            } else if appState.openRouterError == nil {
-                loadingPlaceholder
-            }
+            ForEach(appState.openRouterWorkspaces) { workspace in
+                if let account = workspace.account {
+                    OpenRouterCard(name: workspace.name, account: account)
+                } else if workspace.error == nil {
+                    loadingPlaceholder
+                }
 
-            if let error = appState.openRouterError {
-                ServiceErrorBanner(message: error)
+                if let error = workspace.error {
+                    ServiceErrorBanner(message: "\(workspace.name): \(error)")
+                }
             }
         }
+    }
+
+    private var openRouterSubtitle: String? {
+        guard appState.openRouterWorkspaces.count > 1, let total = appState.openRouterMonthlySpend else {
+            return nil
+        }
+        return String(format: "$%.2f this month", total)
     }
 
     private var loadingPlaceholder: some View {

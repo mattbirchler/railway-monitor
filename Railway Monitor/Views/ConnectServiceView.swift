@@ -13,6 +13,7 @@ struct ConnectServiceView: View {
     var onCancel: (() -> Void)?
 
     @State private var token = ""
+    @State private var workspaceName = ""
     @State private var isConnecting = false
     @State private var errorMessage: String?
 
@@ -22,13 +23,18 @@ struct ConnectServiceView: View {
                 .font(.system(size: 36))
                 .foregroundStyle(.secondary)
 
-            Text("Connect \(service.displayName)")
+            Text(title)
                 .font(.headline)
 
             Text(service.setupInstructions)
                 .font(.callout)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
+
+            if service == .openRouter {
+                TextField("Workspace name (optional)", text: $workspaceName)
+                    .textFieldStyle(.roundedBorder)
+            }
 
             SecureField(service.credentialLabel, text: $token)
                 .textFieldStyle(.roundedBorder)
@@ -69,6 +75,13 @@ struct ConnectServiceView: View {
         .frame(width: 280)
     }
 
+    private var title: String {
+        if service == .openRouter && appState.isOpenRouterConnected {
+            return "Add OpenRouter Workspace"
+        }
+        return "Connect \(service.displayName)"
+    }
+
     private func connect() {
         guard !isConnecting else { return }
         isConnecting = true
@@ -76,7 +89,11 @@ struct ConnectServiceView: View {
 
         Task {
             do {
-                try await appState.connect(service, token: token)
+                if service == .openRouter {
+                    try await appState.addOpenRouterWorkspace(name: workspaceName, key: token)
+                } else {
+                    try await appState.connect(service, token: token)
+                }
                 onConnected()
             } catch {
                 errorMessage = error.localizedDescription

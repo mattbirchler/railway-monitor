@@ -5,17 +5,24 @@
 
 import SwiftUI
 
-/// Shows OpenRouter spend for the current key over several windows, plus limits and credits when known.
+/// Shows OpenRouter spend for one workspace key over several windows, plus limits and credits when known.
 struct OpenRouterCard: View {
+    let name: String
     let account: OpenRouterAccount
 
     private var key: OpenRouterKeyInfo { account.key }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("This Month")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+            HStack {
+                Text(name)
+                    .font(.subheadline.weight(.medium))
+                    .lineLimit(1)
+                Spacer()
+                Text("This Month")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
 
             Text(String(format: "$%.2f", key.usageMonthly ?? 0))
                 .font(.system(size: 28, weight: .semibold, design: .rounded))

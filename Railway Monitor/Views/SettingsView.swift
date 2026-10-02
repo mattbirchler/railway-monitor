@@ -56,6 +56,11 @@ struct SettingsView: View {
 
                 ForEach(CloudService.allCases) { service in
                     serviceRow(service)
+                    if service == .openRouter {
+                        ForEach(appState.openRouterWorkspaces) { workspace in
+                            openRouterWorkspaceRow(workspace)
+                        }
+                    }
                 }
             }
 
@@ -131,7 +136,12 @@ struct SettingsView: View {
             Text(service.displayName)
                 .font(.subheadline)
             Spacer()
-            if appState.isConnected(service) {
+            if service == .openRouter && appState.isOpenRouterConnected {
+                Button("Add Workspace") {
+                    connectingService = service
+                }
+                .font(.caption)
+            } else if appState.isConnected(service) {
                 Text("Connected")
                     .font(.caption)
                     .foregroundStyle(.green)
@@ -147,6 +157,25 @@ struct SettingsView: View {
                 .font(.caption)
             }
         }
+    }
+
+    private func openRouterWorkspaceRow(_ workspace: AppState.OpenRouterWorkspace) -> some View {
+        HStack {
+            Image(systemName: "key")
+                .font(.caption)
+                .frame(width: 18)
+                .foregroundStyle(.tertiary)
+            Text(workspace.name)
+                .font(.caption)
+                .lineLimit(1)
+            Spacer()
+            Button("Remove") {
+                appState.removeOpenRouterWorkspace(id: workspace.id)
+            }
+            .font(.caption)
+            .foregroundStyle(.red)
+        }
+        .padding(.leading, 18)
     }
 
     private func setLaunchAtLogin(_ enabled: Bool) {

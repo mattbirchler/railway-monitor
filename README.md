@@ -31,7 +31,7 @@ Inworld was considered but has no public billing or usage API, so it is not supp
 
 1. Clone this repository and open `Railway Monitor.xcodeproj` in Xcode.
 2. Build and run the project (Cmd+R).
-3. Click the train icon in your menu bar.
+3. Click the gauge icon in your menu bar.
 4. Pick a service and enter its token. You can connect more services later from Settings.
 
 ## Building

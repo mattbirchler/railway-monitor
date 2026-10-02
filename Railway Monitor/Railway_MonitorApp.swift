@@ -7,11 +7,14 @@
 
 import SwiftUI
 
-/// App entry point. Renders a menu bar extra (popover window) with a train icon.
-/// Optionally displays the current billing period cost next to the icon.
+/// App entry point. Renders a menu bar extra (popover window) with a spend gauge icon.
+/// Optionally displays the combined current-period cost next to the icon.
 @main
 struct Railway_MonitorApp: App {
     @State private var appState = AppState()
+
+    /// Provider-neutral menu bar icon, since the app monitors several cloud services.
+    private static let menuBarSymbol = "dollarsign.gauge.chart.lefthalf.righthalf"
 
     var body: some Scene {
         MenuBarExtra {
@@ -22,10 +25,10 @@ struct Railway_MonitorApp: App {
                 }
         } label: {
             if appState.menuBarTitle.isEmpty {
-                Image(systemName: "train.side.front.car")
+                Image(systemName: Self.menuBarSymbol)
             } else {
                 HStack(spacing: 4) {
-                    Image(systemName: "train.side.front.car")
+                    Image(systemName: Self.menuBarSymbol)
                     Text(appState.menuBarTitle)
                 }
             }

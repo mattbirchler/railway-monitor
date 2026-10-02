@@ -7,68 +7,57 @@
 
 import SwiftUI
 
-/// First-run view that prompts the user to enter their Railway API token.
+/// First-run view. Lets the user pick a cloud service and enter its credential.
 struct SetupView: View {
-    @Environment(AppState.self) private var appState
-    @State private var token = ""
-    @State private var isConnecting = false
-    @State private var errorMessage: String?
+    @State private var selectedService: CloudService?
 
     var body: some View {
+        if let service = selectedService {
+            ConnectServiceView(
+                service: service,
+                onConnected: { selectedService = nil },
+                onCancel: { selectedService = nil }
+            )
+        } else {
+            servicePicker
+        }
+    }
+
+    private var servicePicker: some View {
         VStack(spacing: 16) {
-            Image(systemName: "train.side.front.car")
+            Image(systemName: "chart.bar.doc.horizontal")
                 .font(.system(size: 36))
                 .foregroundStyle(.secondary)
 
             Text("Railway Monitor")
                 .font(.headline)
 
-            Text("Enter your Railway API token to get started.")
+            Text("Pick a service to connect. You can add more later in Settings.")
                 .font(.callout)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
 
-            SecureField("API Token", text: $token)
-                .textFieldStyle(.roundedBorder)
-
-            if let errorMessage {
-                Text(errorMessage)
-                    .font(.caption)
-                    .foregroundStyle(.red)
-            }
-
-            Button(action: connect) {
-                if isConnecting {
-                    ProgressView()
-                        .controlSize(.small)
+            VStack(spacing: 8) {
+                ForEach(CloudService.allCases) { service in
+                    Button {
+                        selectedService = service
+                    } label: {
+                        HStack {
+                            Image(systemName: service.symbolName)
+                                .frame(width: 20)
+                            Text(service.displayName)
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
                         .frame(maxWidth: .infinity)
-                } else {
-                    Text("Connect")
-                        .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.bordered)
                 }
             }
-            .buttonStyle(.borderedProminent)
-            .disabled(token.isEmpty || isConnecting)
-
-            Link("Create a token at railway.com",
-                 destination: URL(string: "https://railway.com/account/tokens")!)
-                .font(.caption)
         }
         .padding(20)
         .frame(width: 280)
-    }
-
-    private func connect() {
-        isConnecting = true
-        errorMessage = nil
-
-        Task {
-            do {
-                try await appState.authenticate(token: token)
-            } catch {
-                errorMessage = error.localizedDescription
-            }
-            isConnecting = false
-        }
     }
 }
